@@ -5,7 +5,7 @@ from customtkinter import filedialog
 from CTkMessagebox import CTkMessagebox
 from PIL import Image, ImageTk
 
-from GUI.left_frame import LeftFrame, TextFrame
+from GUI.left_frame import LeftFrame, TextFrame, Text
 from GUI.right_frame import ToolsFrame
 
 ctk.set_appearance_mode('light')
@@ -29,29 +29,30 @@ class Main(ctk.CTk):
 		self.image_frame = LeftFrame(self, self.top_frame.file_name)
 		self.image_frame.grid(row=1, padx=10, pady=10)
 		
-		self.text_frame = TextFrame(self)
+		self.text_obj = Text(self.image_frame)
+		
+		self.text_frame = TextFrame(self, self.text_obj)
 		self.text_frame.grid(row=2, pady=10)
 		
-		self.tools_frame = ToolsFrame(self, self.image_frame)
+		self.tools_frame = ToolsFrame(self, self.text_obj)
 		self.tools_frame.grid(row=0, column=1, rowspan=3, pady=10, padx=10)
 		
 
 class TopFrame(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master=master)
-		self.configure()
 		
 		self.select_image_button = ctk.CTkButton(master=self, text='Select Image', font=('Arial', 17, 'bold'),
 		                                         command=self.get_image)
 		self.select_image_button.grid(row=0, column=0, padx=10, pady=10)
-		
+
 		self.cancel_button = ctk.CTkButton(master=self, text='Cancel', command=self.exit, font=('Arial', 17, 'bold'),)
 		self.cancel_button.grid(row=0, column=1, pady=10)
-		
+
 		self.save_image_button = ctk.CTkButton(master=self, text='Save Image', font=('Arial', 17, 'bold'),
 		                                         command=self.save_image, state=ctk.DISABLED)
 		self.save_image_button.grid(row=0, column=2, padx=10, pady=10)
-	
+	#
 	def get_image(self):
 		# self.file_name = filedialog.askopenfilename(
 			# initialdir='./', title='Select an Image', filetypes=(('Image files', '*.png *.jpg *.jpeg *.gif *.bmp'),))
@@ -75,7 +76,6 @@ class TopFrame(ctk.CTkFrame):
 		if msg.get() == 'Yes':
 			self.destroy()
 			exit(0)
-		
 
 app = Main()
 app.mainloop()

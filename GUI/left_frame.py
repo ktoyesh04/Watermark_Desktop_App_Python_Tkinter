@@ -1,8 +1,23 @@
 import customtkinter as ctk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageDraw, ImageFont
+
+
+class Text:
+	def __init__(self, canvas):
+		self.canvas = canvas
+		self.text = ''
+		self.font = 'arial.ttf'
+		self.size = 40 
+		self.color = (255, 0, 0, 255)
+		self.rotation = 0
+		self.opacity = 255
+		
+	def modify_text(self):
+		self.canvas.create_text_image(self)
 
 
 class LeftFrame(ctk.CTkCanvas):
+	
 	def __init__(self, master, file_name):
 		super().__init__(master)
 		self.configure(width=1350, height=700, )
@@ -14,14 +29,24 @@ class LeftFrame(ctk.CTkCanvas):
 		img.thumbnail((self.winfo_reqwidth(), self.winfo_reqheight()))
 		
 		self.image = ImageTk.PhotoImage(img)
-		self_image_item = self.create_image(0, 0, image=self.image,
-		                                    anchor=ctk.NW)
+		self_image_item = self.create_image(0, 0, image=self.image, anchor=ctk.NW)
 		
-		text = "Hello, Canvas!"
-		self.text_x = self.winfo_reqwidth() // 2
-		self.text_y = self.winfo_reqheight() // 2 + 100
-		self.text_item = self.create_text(self.text_x, self.text_y, text=text, font=("Arial", 24), fill="black")
+		self.text_item = None
+		
 		self.drag_data = {'x': 0, 'y': 0, 'item': None}
+	
+	def create_text_image(self, text_obj):
+		if self.text_item is None:
+			self.text_item = self.create_image(self.winfo_reqwidth()//2, self.winfo_reqheight()//2, anchor=ctk.CENTER)
+		self.font = ImageFont.truetype(text_obj.font, size=text_obj.size)
+		text_width, text_height = self.font.getsize(text_obj.text)
+		img = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
+		self.draw = ImageDraw.Draw(img, 'RGBA')
+		self.draw.text((0, 0), text=text_obj.text, fill=text_obj.color, font=self.font)
+		# self.draw.line((0, 0)+img.size, fill='black', width=10)
+		img = img.rotate(text_obj.rotation, expand=True, )
+		self.text_item_image = ImageTk.PhotoImage(img)
+		self.itemconfigure(self.text_item, image=self.text_item_image)
 	
 	def start_drag(self, event):
 		self.drag_data['item'] = self.text_item
@@ -49,15 +74,23 @@ class LeftFrame(ctk.CTkCanvas):
 
 
 class TextFrame(ctk.CTkFrame):
-	def __init__(self, master):
+	def __init__(self, master, text_obj):
 		super().__init__(master)
 		
-		self.configure()
-		
-		self.add_text_button = ctk.CTkButton(self, text='Add Text', font=('Arial', 17, 'bold'), )
-		self.add_text_button.grid(row=0, column=0, padx=10, pady=10)
+		self.text_obj = text_obj
 		
 		self.entry = ctk.CTkEntry(self, width=800, height=40, text_color='black',
-		                          font=('Arial', 17, 'normal'))
+		                          placeholder_text='Text Here', font=('Arial', 17, 'normal'))
+		self.master.bind('<KeyPress-Return>', self.add_text)
 		self.entry.grid(row=0, column=1)
+		self.add_text_button = ctk.CTkButton(self, text='Add Text', font=('Arial', 17, 'bold'),
+		                                     command=self.add_text)
+		self.add_text_button.grid(row=0, column=0, padx=10, pady=10)
 		
+	def add_text(self, event=None):
+		entry = self.entry.get()
+		if entry != "":
+			self.text_obj.text = entry
+			self.text_obj.modify_text()
+			self.master.focus_set()
+			
