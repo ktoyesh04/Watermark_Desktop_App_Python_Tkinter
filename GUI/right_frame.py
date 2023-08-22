@@ -78,24 +78,33 @@ class Font(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
 		
+		fonts = ['Arial', 'Georgia', 'Impact', 'Times New Roman', 'Verdana']
+		self.fonts_menu = ctk.CTkOptionMenu(self, values=fonts, width=150,command=self.change_font,
+		                                    dynamic_resizing=False, anchor='center', )
+		self.fonts_menu.grid(row=0, column=0, columnspan=3, pady=10, padx=10)
+
 		self.size = ctk.IntVar(value=40, name='size')
-		self.size_decrement_button = ctk.CTkButton(self, text='▼', width=20,
-		                                           command=lambda: self.change_size(i=-1))
-		self.size_decrement_button.grid(column=0, row=0)
-		self.master.master.bind('<Down>', lambda e: self.change_size(i=-1))
-		
-		self.size_entry = ctk.CTkEntry(self, textvariable=self.size, width=38, height=15, corner_radius=3,
-		                               state=ctk.DISABLED)
-		self.size_entry.grid(column=1, row=0, padx=10)
-		
-		self.size_increment_button = ctk.CTkButton(self, text='▲', width=20,
+		self.size_increment_button = ctk.CTkButton(self, text='▲', width=25, height=20, font=('Arial', 16, 'bold'),
 		                                           command=lambda: self.change_size(i=1))
-		self.size_increment_button.grid(column=2, row=0)
+		self.size_increment_button.grid(column=0, row=1)
 		self.master.master.bind('<Up>', lambda e: self.change_size(i=1))
+		
+		self.size_entry = ctk.CTkEntry(self, textvariable=self.size, width=40, height=20, corner_radius=3,
+		                               state=ctk.DISABLED)
+		self.size_entry.grid(column=1, row=1)
+		
+		self.size_decrement_button = ctk.CTkButton(self, text='▼', width=25, height=20, font=('Arial', 16, 'bold'),
+		                                           command=lambda: self.change_size(i=-1))
+		self.size_decrement_button.grid(column=2, row=1)
+		self.master.master.bind('<Down>', lambda e: self.change_size(i=-1))
 	
 	def change_size(self, i=0):
 		old_val = self.size.get()
 		new_val = old_val + i * 1
 		self.size.set(new_val)
 		self.master.text_obj.size = new_val
+		self.master.text_obj.modify_text()
+
+	def change_font(self, font):
+		self.master.text_obj.font = font
 		self.master.text_obj.modify_text()

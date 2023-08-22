@@ -6,7 +6,7 @@ class Text:
 	def __init__(self, canvas):
 		self.canvas = canvas
 		self.text = ''
-		self.font = 'arial.ttf'
+		self.font = 'Arial'
 		self.size = 40 
 		self.color = (255, 0, 0, 255)
 		self.rotation = 0
@@ -38,12 +38,11 @@ class LeftFrame(ctk.CTkCanvas):
 	def create_text_image(self, text_obj):
 		if self.text_item is None:
 			self.text_item = self.create_image(self.winfo_reqwidth()//2, self.winfo_reqheight()//2, anchor=ctk.CENTER)
-		self.font = ImageFont.truetype(text_obj.font, size=text_obj.size)
+		self.font = ImageFont.truetype(text_obj.font.split()[0].lower(), size=text_obj.size)
 		text_width, text_height = self.font.getsize(text_obj.text)
 		img = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
 		self.draw = ImageDraw.Draw(img, 'RGBA')
 		self.draw.text((0, 0), text=text_obj.text, fill=text_obj.color, font=self.font)
-		# self.draw.line((0, 0)+img.size, fill='black', width=10)
 		img = img.rotate(text_obj.rotation, expand=True, )
 		self.text_item_image = ImageTk.PhotoImage(img)
 		self.itemconfigure(self.text_item, image=self.text_item_image)

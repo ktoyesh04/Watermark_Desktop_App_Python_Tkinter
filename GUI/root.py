@@ -22,7 +22,7 @@ class Main(ctk.CTk):
 		
 		self.top_frame = TopFrame(self)
 		self.top_frame.grid(row=0)
-		self.top_frame.get_image()
+		# self.top_frame.get_image()
 		
 	def create_frames(self):
 		
@@ -54,9 +54,9 @@ class TopFrame(ctk.CTkFrame):
 		self.save_image_button.grid(row=0, column=2, padx=10, pady=10)
 	#
 	def get_image(self):
-		# self.file_name = filedialog.askopenfilename(
-			# initialdir='./', title='Select an Image', filetypes=(('Image files', '*.png *.jpg *.jpeg *.gif *.bmp'),))
-		self.file_name = r'C:\Users\srivani\PycharmProjects\watermark_desktop_gui\dummy1.png'
+		self.file_name = filedialog.askopenfilename(
+			initialdir='./', title='Select an Image', filetypes=(('Image files', '*.png *.jpg *.jpeg *.gif *.bmp'),))
+		# self.file_name = r'C:\Users\srivani\PycharmProjects\watermark_desktop_gui\dummy1.png'
 		if len(self.file_name) != 0:
 			self.select_image_button.configure(state=ctk.DISABLED)
 			self.save_image_button.configure(state=ctk.NORMAL)
