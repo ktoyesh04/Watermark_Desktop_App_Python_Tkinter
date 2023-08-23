@@ -70,7 +70,7 @@ class TopFrame(ctk.CTkFrame):
 		                                                    ("gif", ".gif"), ("jpg", ".jpg")]).name
 		if save_file_dir is not None:
 			image = self.master.image_frame.combine()
-			if os.path.splitext(save_file_dir)[1] == '.jpg':
+			if os.path.splitext(save_file_dir)[1] == '.jpeg':
 				image = image.convert('RGB')
 			image.save(save_file_dir)
 	
