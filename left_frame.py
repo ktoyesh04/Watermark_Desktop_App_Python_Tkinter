@@ -1,3 +1,5 @@
+import math
+
 import customtkinter as ctk
 from PIL import Image, ImageTk, ImageDraw, ImageFont
 
@@ -25,10 +27,11 @@ class LeftFrame(ctk.CTkCanvas):
 		self.bind("<B1-Motion>", self.drag)
 		self.bind("<ButtonRelease-1>", self.release_drag)
 		
-		img = Image.open(file_name)
-		img.thumbnail((self.winfo_reqwidth(), self.winfo_reqheight()))
+		self.original_image = Image.open(file_name)
+		self.canvas_image = self.original_image.copy()
+		self.canvas_image.thumbnail((self.winfo_reqwidth(), self.winfo_reqheight()))
 		
-		self.image = ImageTk.PhotoImage(img)
+		self.image = ImageTk.PhotoImage(self.canvas_image)
 		self_image_item = self.create_image(0, 0, image=self.image, anchor=ctk.NW)
 		
 		self.text_item = None
@@ -40,11 +43,11 @@ class LeftFrame(ctk.CTkCanvas):
 			self.text_item = self.create_image(self.winfo_reqwidth()//2, self.winfo_reqheight()//2, anchor=ctk.CENTER)
 		self.font = ImageFont.truetype(text_obj.font.split()[0].lower(), size=text_obj.size)
 		text_width, text_height = self.font.getsize(text_obj.text)
-		img = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
-		self.draw = ImageDraw.Draw(img, 'RGBA')
+		self.text_image = Image.new('RGBA', (text_width, text_height), (0, 0, 0, 0))
+		self.draw = ImageDraw.Draw(self.text_image, 'RGBA')
 		self.draw.text((0, 0), text=text_obj.text, fill=text_obj.color, font=self.font)
-		img = img.rotate(text_obj.rotation, expand=True, )
-		self.text_item_image = ImageTk.PhotoImage(img)
+		self.text_image = self.text_image.rotate(text_obj.rotation, expand=True, )
+		self.text_item_image = ImageTk.PhotoImage(self.text_image)
 		self.itemconfigure(self.text_item, image=self.text_item_image)
 	
 	def start_drag(self, event):
@@ -70,6 +73,22 @@ class LeftFrame(ctk.CTkCanvas):
 		
 	def release_drag(self, event):
 		self.drag_data['item'] = None
+
+	def any_changes(self):
+		return self.text_item is not None
+
+	def combine(self):
+		width_ratio  = self.original_image.width / self.canvas_image.width
+		height_ratio = self.original_image.height / self.canvas_image.height
+		text_bbox = self.bbox(self.text_item)
+		left = int(text_bbox[0] * width_ratio)
+		right = int(text_bbox[2] * width_ratio)
+		upper = int(text_bbox[1] * height_ratio)
+		lower = int(text_bbox[3] * height_ratio)
+		adjusted_text_image = self.text_image.resize((right - left, lower - upper))
+		self.original_image.paste(adjusted_text_image, (left, upper), adjusted_text_image)
+		self.original_image.show(title='original')
+		return self.original_image
 
 
 class TextFrame(ctk.CTkFrame):

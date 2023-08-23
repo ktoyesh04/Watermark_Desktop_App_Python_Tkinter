@@ -1,12 +1,10 @@
-import io
-import tkinter
+import os.path
 import customtkinter as ctk
 from customtkinter import filedialog
 from CTkMessagebox import CTkMessagebox
-from PIL import Image, ImageTk
 
-from GUI.left_frame import LeftFrame, TextFrame, Text
-from GUI.right_frame import ToolsFrame
+from left_frame import LeftFrame, TextFrame, Text
+from right_frame import ToolsFrame
 
 ctk.set_appearance_mode('light')
 # ctk.set_default_color_theme("custom_theme.json")
@@ -22,10 +20,8 @@ class Main(ctk.CTk):
 		
 		self.top_frame = TopFrame(self)
 		self.top_frame.grid(row=0)
-		# self.top_frame.get_image()
-		
+	
 	def create_frames(self):
-		
 		self.image_frame = LeftFrame(self, self.top_frame.file_name)
 		self.image_frame.grid(row=1, padx=10, pady=10)
 		
@@ -36,7 +32,7 @@ class Main(ctk.CTk):
 		
 		self.tools_frame = ToolsFrame(self, self.text_obj)
 		self.tools_frame.grid(row=0, column=1, rowspan=3, pady=10, padx=10)
-		
+
 
 class TopFrame(ctk.CTkFrame):
 	def __init__(self, master):
@@ -45,37 +41,46 @@ class TopFrame(ctk.CTkFrame):
 		self.select_image_button = ctk.CTkButton(master=self, text='Select Image', font=('Arial', 17, 'bold'),
 		                                         command=self.get_image)
 		self.select_image_button.grid(row=0, column=0, padx=10, pady=10)
-
-		self.cancel_button = ctk.CTkButton(master=self, text='Cancel', command=self.exit, font=('Arial', 17, 'bold'),)
+		
+		self.cancel_button = ctk.CTkButton(master=self, text='Cancel', command=self.exit, font=('Arial', 17, 'bold'), )
 		self.cancel_button.grid(row=0, column=1, pady=10)
-
+		
 		self.save_image_button = ctk.CTkButton(master=self, text='Save Image', font=('Arial', 17, 'bold'),
-		                                         command=self.save_image, state=ctk.DISABLED)
+		                                       command=self.save_image, state=ctk.DISABLED)
 		self.save_image_button.grid(row=0, column=2, padx=10, pady=10)
-	#
+	
 	def get_image(self):
 		self.file_name = filedialog.askopenfilename(
 			initialdir='./', title='Select an Image', filetypes=(('Image files', '*.png *.jpg *.jpeg *.gif *.bmp'),))
-		# self.file_name = r'C:\Users\srivani\PycharmProjects\watermark_desktop_gui\dummy1.png'
 		if len(self.file_name) != 0:
 			self.select_image_button.configure(state=ctk.DISABLED)
 			self.save_image_button.configure(state=ctk.NORMAL)
 			self.master.create_frames()
-
+	
 	def save_image(self):
-		save_file_location = filedialog.asksaveasfile(mode='w', initialdir=self.file_name, initialfile='Modified Image', defaultextension='.png',
-		                         filetypes=(('Image files', '*.png *.jpg *.jpeg *.gif *.bmp'),))
-		print(save_file_location.name)
-		# with open(save_file_location.name, 'wb') as f:
-		# 	self.master.image_frame.img.save(f)
-		
-
+		if not self.master.image_frame.any_changes():
+			CTkMessagebox(title="Error", message="No changes", icon="cancel")
+			return
+		msg = CTkMessagebox(title="Save", message="Confirm to Save", icon="info", option_1="Cancel", option_2="Confirm")
+		if msg.get() != 'Confirm':
+			return
+		save_file_dir = filedialog.asksaveasfile(mode='w', confirmoverwrite=True, initialdir=self.file_name,
+		                                         initialfile='Modified Image', defaultextension='png',
+		                                         filetypes=[("jpeg", ".jpeg"), ("png", ".png"), ("bitmap", "bmp"),
+		                                                    ("gif", ".gif"), ("jpg", ".jpg")]).name
+		if save_file_dir is not None:
+			image = self.master.image_frame.combine()
+			if os.path.splitext(save_file_dir)[1] == '.jpg':
+				image = image.convert('RGB')
+			image.save(save_file_dir)
+	
 	def exit(self):
 		msg = CTkMessagebox(title='Warning!', message='Do you want to exit?', icon='warning',
 		                    option_1='Cancel', option_focus=1, option_2='Yes')
 		if msg.get() == 'Yes':
 			self.destroy()
 			exit(0)
+
 
 app = Main()
 app.mainloop()

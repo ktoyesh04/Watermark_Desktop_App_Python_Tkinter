@@ -43,7 +43,7 @@ class Color(ctk.CTkFrame):
 	def __init__(self, master):
 		super().__init__(master)
 		
-		color_wheel = Image.open(r'C:\Users\srivani\PycharmProjects\watermark_desktop_gui\gui\color-wheel.png')
+		color_wheel = Image.open(r'color-wheel.png')
 		img = ctk.CTkImage(color_wheel, size=(64, 64))
 		self.select_color = ctk.CTkButton(self, text='', command=self.select_color, image=img)
 		self.select_color.grid(row=0, column=0, padx=20, pady=20)
@@ -70,6 +70,7 @@ class Color(ctk.CTkFrame):
 		self.master.text_obj.modify_text()
 	
 	def on_slide(self, alpha):
+		self.value_label.configure(text=f'%d' % (alpha))
 		self.master.text_obj.color = self.master.text_obj.color[:3] + (int(alpha),)
 		self.master.text_obj.modify_text()
 
