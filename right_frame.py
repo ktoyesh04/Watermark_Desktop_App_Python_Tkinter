@@ -66,6 +66,8 @@ class Color(ctk.CTkFrame):
 			return "#%02x%02x%02x" % (int(r * 255), int(g * 255), int(b * 255))
 		current_color = self.master.text_obj.color[:3]
 		rgb_color = colorchooser.askcolor(tk_rgb(*[val / 255 for val in current_color]))[0]
+		if rgb_color is None:
+			return
 		self.master.text_obj.color = rgb_color + (255,)
 		self.master.text_obj.modify_text()
 	

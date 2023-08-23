@@ -1,5 +1,6 @@
 import os.path
 import customtkinter as ctk
+from PIL import Image, ImageTk
 from customtkinter import filedialog
 from CTkMessagebox import CTkMessagebox
 
@@ -17,6 +18,10 @@ class Main(ctk.CTk):
 		self.geometry("1520x760+0+10")
 		self.resizable(True, False)
 		self.title('WaterMark GUI')
+		
+		bg_image = ImageTk.PhotoImage(file=r'bg.png')
+		bg_label = ctk.CTkLabel(self, image=bg_image, text='')
+		bg_label.place(x=0, y=0)
 		
 		self.top_frame = TopFrame(self)
 		self.top_frame.grid(row=0)
